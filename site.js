@@ -3,6 +3,7 @@ var helmet = require('helmet');
 var fs = require('fs');
 var errors = require("./errors.js");
 var bodyParser = require('body-parser');
+var request = require('request');
 
 var config = {};
 
@@ -48,9 +49,14 @@ if (fs.existsSync('./configs/config.json')) {
 log("Checking config for correct values")
 var hasMissing = false;
 if (!("port" in config)) {
-	log("Server port key missing from config");
+	log("Server port missing from config");
 	hasMissing = true;
 	config.port = 3000;
+}
+if (!("youtubeAPIKey" in config)) {
+	log("Youtube API key missing from config");
+	hasMissing = true;
+	config.youtubeAPIKey = "youtube api key here";
 }
 
 function saveConfig() {
@@ -93,6 +99,43 @@ app.get('/player_frame', function(req, res){
 	
 	res.render('player_frame', { page: "player", songs: files });
 });
+
+
+app.get('/ajax/search', search);
+app.get('/ajax/search/*', search);
+
+function search(req, res) {
+	var searchTerm = req.url.replace("/ajax/search", "");
+	searchTerm = searchTerm.replace("/", "");
+
+	var resultsJson = [];
+	var errorMSG = ""
+
+	function respond() {
+		res.send({error: errorMSG || "", term: searchTerm, results: resultsJson});
+	}
+
+	if (searchTerm == "") {
+		errorMSG = "Invalid search term";
+	}else{
+		request('https://www.googleapis.com/youtube/v3/search?key=' + config.youtubeAPIKey + '&part=snippet&q=' + searchTerm, function (error, response, body) {
+			if (response.statusCode == 503) {
+				errorMSG = "Youtube API down";
+				respond();
+			}
+
+			var bodyJson = JSON.parse(body);
+			console.log(bodyJson);
+
+			if (bodyJson["items"]) {
+				resultsJson = bodyJson["items"]
+				respond();
+			}else{
+				respond();
+			}
+		});
+	}
+}
 
 
 //Allows for a static folder

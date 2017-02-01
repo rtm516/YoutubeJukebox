@@ -43,3 +43,20 @@ footer > .container {
 	overflow-y: scroll;
 	height: 100%;
 }
+
+#searchResult img {
+	height: 75px;
+	float: left;
+	margin-right: 5px;
+}
+
+#searchResult h3 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	text-decoration: underline;
+}
+
+#searchResult h4 {
+	margin-top: 5px;
+	margin-bottom: 0px;
+}

@@ -1,11 +1,27 @@
 {
-  "name": "jukebox",
+  "name": "youtubejukebox",
   "version": "1.0.0",
-  "description": "",
+  "description": "Provides a simple way of implementing a jukebox running from nodejs and youtube",
   "main": "site.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "rtm516",
-  "license": "ISC"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.1",
+    "ejs": "^2.5.5",
+    "body-parser": "^1.16.0",
+    "request": "^2.79.0",
+    "helmet": "^3.4.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rtm516/YoutubeJukebox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rtm516/YoutubeJukebox/issues"
+  },
+  "homepage": "https://github.com/rtm516/YoutubeJukebox#readme"
 }

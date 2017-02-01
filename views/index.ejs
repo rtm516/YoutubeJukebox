@@ -2,7 +2,34 @@
 <script type="text/javascript">
 	$(function() {
 		resizeContent();
+
+		$("#searchForm").submit(function(e){
+			e.preventDefault();
+
+			showSearchLoader();
+
+			$.ajax({
+				url: "/ajax/search/" + $("#searchInput").val(),
+				success: function(result) {
+					if (result["error"] != "") {
+						$("#searchResults").html('<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>' + result["error"] + '</div>');
+					}else{
+						var resultsHTML = "";
+						for (var i = result["results"].length - 1; i >= 0; i--) {
+							var res = result["results"][i]
+							resultsHTML += '<div class="well" id="searchResult"><img src="' + res["snippet"]["thumbnails"]["default"]["url"] + '" /><a href="#"><h3>' + res["snippet"]["title"] + '</h3></a><h4>' + res["snippet"]["channelTitle"] + '</h4></div>';
+						};
+
+						$("#searchResults").html(resultsHTML);
+					}
+				}
+			});
+		});
 	});
+
+	function showSearchLoader() {
+		$("#searchResults").html("<center><img src='/img/loading.gif' alt='Loading...' /></center>");
+	}
 </script>
 <div class="container">
 	<div class="row" style="height:100%;">
@@ -14,6 +41,16 @@
 		</div>
 		<div class="col-md-6 right">
 			Search:
+			<form id="searchForm">
+				<div class="input-group input-group-lg">
+						<input type="text" class="form-control input-lg" id="searchInput" placeholder="Search">
+						<span class="input-group-btn">
+							<button class="btn btn-default btn-lg" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+						</span>
+					</div>
+			</form>
+			<br>
+			<div id="searchResults"></div>
 		</div>
 	</div>
 </div>
