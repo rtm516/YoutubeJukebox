@@ -1,3 +1,4 @@
 {
-	"port": 3006
+	"port": 3006,
+	"apiKey": "youtube api key here"
 }
