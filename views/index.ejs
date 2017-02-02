@@ -13,8 +13,8 @@
 			</div>
 		</div>
 		<div class="col-md-6 right">
-			Search:
 			<form id="searchForm">
+				Search:
 				<div class="form-group">
 				<div class="input-group input-group-lg">
 					<input type="text" class="form-control input-lg" id="searchInput" placeholder="Search" name="q">
@@ -32,8 +32,12 @@
 					</select>
 				</div>
 			</form>
-			<br>
-			<div id="searchResults"></div>
+			<div id="searchResults" class="vScroll"></div>
+			<script>
+				$(function() {
+					resizeElement("#searchResults", "#searchForm", 4);
+				});
+			</script>
 		</div>
 	</div>
 </div>
