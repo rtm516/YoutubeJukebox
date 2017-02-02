@@ -100,14 +100,10 @@ app.get('/player_frame', function(req, res){
 	res.render('player_frame', { page: "player", songs: files });
 });
 
-
-app.get('/ajax/search', search);
-app.get('/ajax/search/*', search);
-
-function search(req, res) {
-	var searchTerm = req.url.replace("/ajax/search", "");
-	searchTerm = searchTerm.replace("/", "");
-
+app.post('/ajax/search', function(req, res){
+	var searchTerm = req.body.q;
+	var sort = req.body.sort;
+	
 	var resultsJson = [];
 	var errorMSG = ""
 
@@ -117,15 +113,18 @@ function search(req, res) {
 
 	if (searchTerm == "") {
 		errorMSG = "Invalid search term";
+		respond();
+	}else if ((sort != "relevance") && (sort != "date") && (sort != "viewCount") && (sort != "rating")) {
+		errorMSG = "Invalid sort order";
+		respond();
 	}else{
-		request('https://www.googleapis.com/youtube/v3/search?key=' + config.youtubeAPIKey + '&part=snippet&q=' + searchTerm, function (error, response, body) {
+		request('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDimension=2d&videoEmbeddable=true&maxResults=25&order=' + sort + '&key=' + config.youtubeAPIKey + '&q=' + searchTerm, function (error, response, body) {
 			if (response.statusCode == 503) {
 				errorMSG = "Youtube API down";
 				respond();
 			}
 
 			var bodyJson = JSON.parse(body);
-			console.log(bodyJson);
 
 			if (bodyJson["items"]) {
 				resultsJson = bodyJson["items"]
@@ -135,7 +134,7 @@ function search(req, res) {
 			}
 		});
 	}
-}
+});
 
 
 //Allows for a static folder

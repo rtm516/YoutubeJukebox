@@ -44,19 +44,23 @@ footer > .container {
 	height: 100%;
 }
 
+#searchResult {
+	height: 110px;
+}
+
 #searchResult img {
-	height: 75px;
+	height: auto;
 	float: left;
 	margin-right: 5px;
 }
 
-#searchResult h3 {
+#searchResult h4 {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	text-decoration: underline;
 }
 
-#searchResult h4 {
+#searchResult h5 {
 	margin-top: 5px;
 	margin-bottom: 0px;
 }
