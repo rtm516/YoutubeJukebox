@@ -2,6 +2,7 @@
 <script type="text/javascript">
 	$(function() {
 		resizeContent();
+		resizeElement("#searchResults", "#searchForm", 4);
 	});
 </script>
 <div class="container">
@@ -33,11 +34,6 @@
 				</div>
 			</form>
 			<div id="searchResults" class="vScroll"></div>
-			<script>
-				$(function() {
-					resizeElement("#searchResults", "#searchForm", 4);
-				});
-			</script>
 		</div>
 	</div>
 </div>

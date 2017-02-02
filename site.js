@@ -130,6 +130,48 @@ app.post('/ajax/search', function(req, res){
 				resultsJson = bodyJson["items"]
 				respond();
 			}else{
+				errorMSG = "No search results";
+				respond();
+			}
+		});
+	}
+});
+
+app.post('/ajax/addToQueue', function(req, res){
+	var videoId = req.body.id;
+	videoId = videoId.match("([a-zA-Z0-9\-\_]+)&?");
+	
+	var resultsJson = [];
+	var errorMSG = ""
+
+	function respond() {
+		res.send({error: errorMSG || "", term: videoId, video: resultsJson});
+	}
+
+	if (videoId == "") {
+		errorMSG = "Invalid video id";
+		respond();
+	}else{
+		request('https://www.googleapis.com/youtube/v3/videos?part=snippet&maxResults=1&key=' + config.youtubeAPIKey + '&id=' + videoId, function (error, response, body) {
+			if (response.statusCode == 503) {
+				errorMSG = "Youtube API down";
+				respond();
+			}
+
+			var bodyJson = JSON.parse(body);
+
+			if (bodyJson["items"] && bodyJson["items"][0] && bodyJson["items"][0]["snippet"]) {
+				if (fs.existsSync("./requests/" + bodyJson["items"][0]["id"] + ".json")) {
+					errorMSG = "Video already requested";
+					respond();
+				}else{
+					fs.writeFileSync("./requests/" + bodyJson["items"][0]["id"] + ".json", JSON.stringify(bodyJson["items"][0], null, "\t"));
+
+					resultsJson = bodyJson["items"][0]["snippet"]
+					respond();
+				}				
+			}else{
+				errorMSG = "Invalid video id";
 				respond();
 			}
 		});

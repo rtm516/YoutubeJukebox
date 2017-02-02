@@ -19,6 +19,29 @@ function showSearchLoader() {
 	$("#searchResults").html("<center><img src='/img/loading.gif' alt='Loading...' /></center>");
 }
 
+function addToQueue(videoId) {
+	$.ajax({
+		url: "/ajax/addToQueue",
+		type: "POST",
+		data: {id: videoId},
+		dataType: 'json',
+        encode: true,
+		success: function(result){
+			console.log(result);
+			if (result["error"] != "") {
+				alert("Error: " + result["error"]);
+			}else{
+				alert("Added " + result["video"]["title"] + " to the video queue.");
+			}
+		},
+		error: function(xhr, status, error){
+			alert("Unable to contact backend server (" + xhr.status + ")");
+
+			$("#searchResults").html("");
+		}
+	});
+}
+
 function submitSearch() {	
 	var formData = {
 		'q': $('input[name=q]').val(),
@@ -40,7 +63,7 @@ function submitSearch() {
 				var resultsHTML = "";
 				for (var i = result["results"].length - 1; i >= 0; i--) {
 					var res = result["results"][i]
-					resultsHTML += '<div class="well well-sm" id="searchResult"><img src="' + res["snippet"]["thumbnails"]["default"]["url"] + '" /><a href="https://youtu.be/' + res["id"]["videoId"] + '" target="_blank"><h4>' + res["snippet"]["title"] + '</h4></a><h5>' + res["snippet"]["channelTitle"] + '</h5></div>';
+					resultsHTML += '<div class="well well-sm" id="searchResult"><a class="pull-right btn btn-success" onclick="addToQueue(\'' + res["id"]["videoId"] + '\')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a><img src="' + res["snippet"]["thumbnails"]["default"]["url"] + '" /><a href="https://youtu.be/' + res["id"]["videoId"] + '" target="_blank"><h4>' + res["snippet"]["title"] + '</h4></a><h5>' + res["snippet"]["channelTitle"] + '</h5></div>';
 				};
 
 				$("#searchResults").html(resultsHTML);
