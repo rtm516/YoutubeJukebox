@@ -15,5 +15,6 @@ Download the repository and extract if in a zip, then run.
 This will install all the required modules.
 If you would like to use the supplied batch file to make the server reboot automatically then run either
 `npm install nodemon`
-or install it globally
+or 
 `npm install -g nodemon`
+to install it globally
