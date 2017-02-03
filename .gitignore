@@ -1,5 +1,6 @@
 configs/*
 requests/*
+logs/*
 
 # Created by https://www.gitignore.io/api/windows,node,sublimetext
 
