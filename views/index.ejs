@@ -3,17 +3,29 @@
 	$(function() {
 		resizeContent();
 		resizeElement("#searchResults", "#searchForm", 4);
+		resizeElement("#queueList", "#queueTitle", 4);
 	});
 </script>
 <div class="container">
 	<div class="row" style="height:100%;">
-		<div class="col-md-6">
-			Queued songs:
-			<div class="well well-sm">
-				Item1
+		<div class="col-sm-6 right">
+			<span id="queueTitle">Queued songs:</span>
+			<div class="vScroll" id="queueList">
+				<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
+					<b>No songs in queue</b>
+				<% } else { %>
+				<% console.log(songs); %>
+					<% for(var key in songs) { %>
+						<% var song = songs[key]; %>
+						<% console.log(""); %>
+						<div class="well well-sm">
+							<%- song.snippet.title; %>
+						</div>
+					<% } %>
+				<% } %>
 			</div>
 		</div>
-		<div class="col-md-6 right">
+		<div class="col-sm-6 right">
 			<form id="searchForm">
 				Search:
 				<div class="form-group">

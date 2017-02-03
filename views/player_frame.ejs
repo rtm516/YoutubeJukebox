@@ -22,14 +22,15 @@
 		<div class="col-xs-4 right">
 			<span id="queueTitle">Queued songs:</span>
 			<div class="vScroll" id="queueList">
-				<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {}) { %>
+				<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
 					<b>No songs in queue</b>
 				<% } else { %>
-					<% console.log((typeof songs == "undefined"), (songs.length <= 0), (songs == {}), songs.length, songs); %>
-					<% for(var i=0; i<songs.length; i++) { %>
-						<% var song = songs[i]; %>
+				<% console.log(songs); %>
+					<% for(var key in songs) { %>
+						<% var song = songs[key]; %>
+						<% console.log(""); %>
 						<div class="well well-sm">
-							<%- song.name %>
+							<%- song.snippet.title; %>
 						</div>
 					<% } %>
 				<% } %>

@@ -70,6 +70,17 @@ if (hasMissing === true) {
 	process.exit();
 }
 
+function getQueue() {
+	var queue = {};
+	var files = fs.readdirSync("./requests/");
+	
+	files.forEach(file => {
+		queue[file.replace(".json", "")] = JSON.parse(fs.readFileSync("./requests/" + file, 'utf8'));
+	});
+	
+	return queue;
+}
+
 var app = express();
 
 //Security stuff
@@ -79,7 +90,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
-})); 
+}));
 
 //Tell express to use ejs
 app.set('views', __dirname + '/views');
@@ -87,7 +98,7 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', function(req, res){
-	res.render('index', { page: "home" });
+	res.render('index', { page: "home", songs: getQueue() });
 });
 
 app.get('/player', function(req, res){
@@ -95,9 +106,7 @@ app.get('/player', function(req, res){
 });
 
 app.get('/player_frame', function(req, res){
-	var files = {}
-	
-	res.render('player_frame', { page: "player", songs: files });
+	res.render('player_frame', { page: "player", songs: getQueue() });
 });
 
 app.post('/ajax/search', function(req, res){
