@@ -1,4 +1,4 @@
-# YoutubeJukebox
+# Youtube jukebox
 Not finished yet
 
 ## Node modules
