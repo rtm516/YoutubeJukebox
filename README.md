@@ -1,5 +1,6 @@
 # Youtube jukebox
-Not finished yet
+This project provides a simple way of implementing a jukebox running from nodejs and youtube.
+__Warning: Unfinished__
 
 ## Node modules
 * [Express](http://expressjs.com/)
@@ -18,3 +19,9 @@ If you would like to use the supplied batch file to make the server reboot autom
 or 
 `npm install -g nodemon`
 to install it globally
+
+## Links
+* [My website](https://rtm516.co.uk/)
+* [Node.js](https://nodejs.org/en/)
+* [Youtube data API](https://developers.google.com/youtube/v3/)
+* [Youtube iframe API](https://developers.google.com/youtube/iframe_api_reference)
