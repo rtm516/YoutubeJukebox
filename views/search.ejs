@@ -1,0 +1,30 @@
+<%- include("inc/header"); %>
+<script type="text/javascript">
+	$(function() {
+		resizeContent();
+		resizeElement("#searchResults", "#searchForm", 15);
+	});
+</script>
+<div class="container">
+	<form id="searchForm">
+		Search:
+		<div class="form-group">
+		<div class="input-group input-group-lg">
+			<input type="text" class="form-control input-lg" id="searchInput" placeholder="Search" name="q">
+			<span class="input-group-btn">
+				<button class="btn btn-default btn-lg" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+			</span>
+		</div>
+		</div>
+		<div class="form-group">
+			<select class="form-control" id="searchSort" name="sort">
+				<option value="relevance">Sort by: Relevance</option>
+				<option value="date">Sort by: Upload date</option>
+				<option value="viewCount">Sort by: View count</option>
+				<option value="rating">Sort by: Rating</option>
+			</select>
+		</div>
+	</form>
+	<div id="searchResults" class="vScroll"></div>
+</div>
+<%- include("inc/footer"); %>

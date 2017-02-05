@@ -1,0 +1,25 @@
+<%- include("inc/header"); %>
+<script type="text/javascript">
+	$(function() {
+		resizeContent();
+		resizeElement("#queueList", "#queueTitle", 4);
+	});
+</script>
+<div class="container">
+	<span id="queueTitle">Queued songs:</span>
+	<div class="vScroll" id="queueList">
+		<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
+			<b>No songs in queue</b>
+		<% } else { %>
+		<% console.log(songs); %>
+			<% for(var key in songs) { %>
+				<% var song = songs[key]; %>
+				<% console.log(""); %>
+				<div class="well well-sm">
+					<%- song.snippet.title; %>
+				</div>
+			<% } %>
+		<% } %>
+	</div>
+</div>
+<%- include("inc/footer"); %>

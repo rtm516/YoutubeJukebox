@@ -36,8 +36,6 @@ function addToQueue(videoId) {
 		},
 		error: function(xhr, status, error){
 			alert("Unable to contact backend server (" + xhr.status + ")");
-
-			$("#searchResults").html("");
 		}
 	});
 }

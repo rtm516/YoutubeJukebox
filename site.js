@@ -101,9 +101,19 @@ app.get('/', function(req, res){
 	res.render('index', { page: "home", songs: getQueue() });
 });
 
+app.get('/playlist', function(req, res){
+	res.render('playlist', { page: "playlist", songs: getQueue() });
+});
+
+app.get('/search', function(req, res){
+	res.render('search', { page: "search" });
+});
+
+/*
 app.get('/player', function(req, res){
 	res.render('player', { page: "player" });
 });
+*/
 
 app.get('/player_frame', function(req, res){
 	res.render('player_frame', { page: "player", songs: getQueue() });
@@ -186,6 +196,12 @@ app.post('/ajax/addToQueue', function(req, res){
 		});
 	}
 });
+
+app.get('/ajax/getQueue', function(req, res){
+	res.send(getQueue())
+});
+
+
 
 
 //Allows for a static folder
