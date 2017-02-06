@@ -5,40 +5,65 @@
 		margin: 0 !important;
 		overflow-y: hidden;
 	}
+	.container-fluid {
+		width: 100%;
+	}
+	.left {
+		padding-left: 0 !important;
+	}
+	.right {
+		padding-right: 0 !important;
+	}
 </style>
+<% var strQueue = ""; %>
+<% for (var video in songs) { %>
+	<% strQueue = strQueue + video + "," %>
+<% } %>
+<% strQueue = strQueue.replace(/,\s*$/, ""); %>
 <div class="container-fluid fillHeight">
 	<div class="row fillHeight">
-		<div class="col-xs-8 fillHeight">
+		<div class="col-xs-8 fillHeight left">
 			<!--<iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1" frameborder="0"></iframe>-->
 			<div id="ytplayer"></div>
 
 			<script>
-			  var tag = document.createElement('script');
-			  tag.src = "https://www.youtube.com/iframe_api";
-			  var firstScriptTag = document.getElementsByTagName('script')[0];
-			  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+				var tag = document.createElement('script');
+				tag.src = "https://www.youtube.com/iframe_api";
+				var firstScriptTag = document.getElementsByTagName('script')[0];
+				firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-			  var player;
-			  function onYouTubeIframeAPIReady() {
-				player = new YT.Player('ytplayer', {
-				  videoId: 'JGwWNGJdvx8',
-				  events: {
-					'onReady': onPlayerReady,
-					'onStateChange': onPlayerStateChange
-				  }
-				});
-			  }
-
-			  function onPlayerReady(event) {
-				event.target.playVideo();
-			  }
-
-			  var done = false;
-			  function onPlayerStateChange(event) {
-				if (event.data == YT.PlayerState.STOPPED) {
-				  console.log("STOPPED");
+				var player;
+				function onYouTubeIframeAPIReady() {
+					player = new YT.Player('ytplayer', {
+						playerVars: {
+							rel: 0,
+							playlist: "<%- strQueue %>",
+							autoplay: 1,
+							controls: 1
+						},
+						events: {
+							'onReady': onPlayerReady,
+							'onStateChange': onPlayerStateChange
+						}
+					});
 				}
-			  }
+
+				function onPlayerReady(event) {
+					event.target.playVideo();
+				}
+
+				var done = false;
+				function onPlayerStateChange(event) {
+					if (event.data == YT.PlayerState.ENDED) {
+						var queue = getQueue();
+						removeQueue(Object.keys(queue)[0]);
+						var nextSong = 1;
+						if (queue.length <= 1) {
+							nextSong = 0;
+						}
+						player.loadPlaylist(getStrQueue(), nextSong);
+					}
+				}
 			</script>
 		</div>
 		<div class="col-xs-4 right">
@@ -65,4 +90,5 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript" src="/js/queue.js"></script>
 <%- include("inc/footer", {noContent: true}); %>

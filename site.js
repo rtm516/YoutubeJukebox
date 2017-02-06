@@ -210,6 +210,7 @@ app.post('/ajax/addToQueue', function(req, res) {
 					respond();
 				} else {
 					fs.writeFileSync("./requests/" + bodyJson.items[0].id + ".json", JSON.stringify(bodyJson.items[0], null, "\t"));
+					log("Added video " + bodyJson.items[0].id + " to the queue");
 
 					resultsJson = bodyJson.items[0].snippet;
 					respond();
@@ -225,6 +226,28 @@ app.post('/ajax/addToQueue', function(req, res) {
 app.get('/ajax/getQueue', function(req, res) {
 	res.send(getQueue())
 });
+
+app.post('/ajax/removeQueue', function(req, res) {
+	var videoID = req.body.videoID;
+	var queue = getQueue();
+	if (queue[videoID]) {
+		if (fs.existsSync("./requests/" + videoID + ".json")) {
+			try {
+				fs.unlinkSync("./requests/" + videoID + ".json");
+				log("Removed video " + videoID + " from the queue");
+				res.send({success:1, error:""});
+			}
+			catch (e) {
+				res.send({success:0, error:"Video in queue but file doesnt exist"});
+			}
+		}else{
+			res.send({success:0, error:"Video in queue but file doesnt exist"});
+		}
+	}else{
+		res.send({success:0, error:"That video isnt in the queue"});
+	}
+});
+
 
 
 
