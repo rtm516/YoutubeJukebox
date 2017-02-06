@@ -2,9 +2,11 @@
 This project provides a simple way of implementing a jukebox running from nodejs and youtube.
 __Warning: Unfinished__
 
-## Libarys
+## Libraries
 * [Boostrap v3.3.7](http://getbootstrap.com/)
 * [jQuery v3.1.1](https://jquery.com/)
+* [HTML5 Shiv v3.7.3](https://github.com/aFarkas/html5shiv)
+* [Respond.js v1.4.2](https://github.com/scottjehl/Respond)
 
 ## Node modules
 * [Express](http://expressjs.com/)
