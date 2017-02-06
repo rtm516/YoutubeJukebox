@@ -7,15 +7,15 @@ var request = require('request');
 
 var config = {};
 
-if (!fs.existsSync("./configs")){
+if (!fs.existsSync("./configs")) {
 	fs.mkdirSync("./configs");
 }
 
-if (!fs.existsSync("./logs")){
+if (!fs.existsSync("./logs")) {
 	fs.mkdirSync("./logs");
 }
 
-if (!fs.existsSync("./requests")){
+if (!fs.existsSync("./requests")) {
 	fs.mkdirSync("./requests");
 }
 
@@ -23,10 +23,10 @@ function log(message, noprefix, noprint) {
 	var date = new Date();
 	var prefix = "[" + ('0' + date.getDate()).slice(-2) + "/" + ('0' + date.getMonth()).slice(-2) + "/" + date.getFullYear() + " " + ('0' + date.getHours()).slice(-2) + ":" + ('0' + date.getMinutes()).slice(-2) + ":" + ('0' + date.getSeconds()).slice(-2) + "] ";
 	var fullMessage = message;
-	if (!noprefix){
+	if (!noprefix) {
 		fullMessage = prefix + message;
 	}
-	if (!noprint){
+	if (!noprint) {
 		console.log(fullMessage);
 	}
 	fs.appendFile("./logs/" + ('0' + date.getDate()).slice(-2) + "-" + ('0' + date.getMonth()).slice(-2) + "-" + date.getFullYear() + ".txt", fullMessage + "\n");
@@ -39,10 +39,10 @@ if (fs.existsSync('./configs/config.json')) {
 	try {
 		config = JSON.parse(fs.readFileSync('./configs/config.json', 'utf8'));
 		log("Loaded config file");
-	}catch (e) {
+	} catch (e) {
 		log("Failed to load config")
 	}
-}else{
+} else {
 	log("No config found!")
 }
 
@@ -73,11 +73,17 @@ if (hasMissing === true) {
 function getQueue() {
 	var queue = {};
 	var files = fs.readdirSync("./requests/");
-	
+
+	files.sort(function(a, b) {
+		var infoA = fs.statSync("./requests/" + a);
+		var infoB = fs.statSync("./requests/" + b);
+		return infoA.birthtime < infoB.birthtime ? -1 : 1;
+	})
+
 	files.forEach(file => {
 		queue[file.replace(".json", "")] = JSON.parse(fs.readFileSync("./requests/" + file, 'utf8'));
 	});
-	
+
 	return queue;
 }
 
@@ -89,7 +95,7 @@ app.use(helmet());
 //Allow for post requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: true
+	extended: true
 }));
 
 //Tell express to use ejs
@@ -97,16 +103,24 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 
-app.get('/', function(req, res){
-	res.render('index', { page: "home", songs: getQueue() });
+app.get('/', function(req, res) {
+	res.render('index', {
+		page: "home",
+		songs: getQueue()
+	});
 });
 
-app.get('/playlist', function(req, res){
-	res.render('playlist', { page: "playlist", songs: getQueue() });
+app.get('/playlist', function(req, res) {
+	res.render('playlist', {
+		page: "playlist",
+		songs: getQueue()
+	});
 });
 
-app.get('/search', function(req, res){
-	res.render('search', { page: "search" });
+app.get('/search', function(req, res) {
+	res.render('search', {
+		page: "search"
+	});
 });
 
 /*
@@ -115,29 +129,36 @@ app.get('/player', function(req, res){
 });
 */
 
-app.get('/player_frame', function(req, res){
-	res.render('player_frame', { page: "player", songs: getQueue() });
+app.get('/player_frame', function(req, res) {
+	res.render('player_frame', {
+		page: "player",
+		songs: getQueue()
+	});
 });
 
-app.post('/ajax/search', function(req, res){
+app.post('/ajax/search', function(req, res) {
 	var searchTerm = req.body.q;
 	var sort = req.body.sort;
-	
+
 	var resultsJson = [];
 	var errorMSG = ""
 
 	function respond() {
-		res.send({error: errorMSG || "", term: searchTerm, results: resultsJson});
+		res.send({
+			error: errorMSG || "",
+			term: searchTerm,
+			results: resultsJson
+		});
 	}
 
-	if (searchTerm == "") {
+	if (searchTerm === "") {
 		errorMSG = "Invalid search term";
 		respond();
-	}else if ((sort != "relevance") && (sort != "date") && (sort != "viewCount") && (sort != "rating")) {
+	} else if ((sort != "relevance") && (sort != "date") && (sort != "viewCount") && (sort != "rating")) {
 		errorMSG = "Invalid sort order";
 		respond();
-	}else{
-		request('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDimension=2d&videoEmbeddable=true&maxResults=25&order=' + sort + '&key=' + config.youtubeAPIKey + '&q=' + searchTerm, function (error, response, body) {
+	} else {
+		request('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDimension=2d&maxResults=25&order=' + sort + '&key=' + config.youtubeAPIKey + '&q=' + searchTerm, function(error, response, body) {
 			if (response.statusCode == 503) {
 				errorMSG = "Youtube API down";
 				respond();
@@ -145,10 +166,10 @@ app.post('/ajax/search', function(req, res){
 
 			var bodyJson = JSON.parse(body);
 
-			if (bodyJson["items"]) {
-				resultsJson = bodyJson["items"]
+			if (bodyJson.items) {
+				resultsJson = bodyJson.items;
 				respond();
-			}else{
+			} else {
 				errorMSG = "No search results";
 				respond();
 			}
@@ -156,22 +177,26 @@ app.post('/ajax/search', function(req, res){
 	}
 });
 
-app.post('/ajax/addToQueue', function(req, res){
+app.post('/ajax/addToQueue', function(req, res) {
 	var videoId = req.body.id;
 	videoId = videoId.match("([a-zA-Z0-9\-\_]+)&?");
-	
+
 	var resultsJson = [];
 	var errorMSG = ""
 
 	function respond() {
-		res.send({error: errorMSG || "", term: videoId, video: resultsJson});
+		res.send({
+			error: errorMSG || "",
+			term: videoId,
+			video: resultsJson
+		});
 	}
 
-	if (videoId == "") {
+	if (videoId === "") {
 		errorMSG = "Invalid video id";
 		respond();
-	}else{
-		request('https://www.googleapis.com/youtube/v3/videos?part=snippet&maxResults=1&key=' + config.youtubeAPIKey + '&id=' + videoId, function (error, response, body) {
+	} else {
+		request('https://www.googleapis.com/youtube/v3/videos?part=snippet&maxResults=1&key=' + config.youtubeAPIKey + '&id=' + videoId, function(error, response, body) {
 			if (response.statusCode == 503) {
 				errorMSG = "Youtube API down";
 				respond();
@@ -179,17 +204,17 @@ app.post('/ajax/addToQueue', function(req, res){
 
 			var bodyJson = JSON.parse(body);
 
-			if (bodyJson["items"] && bodyJson["items"][0] && bodyJson["items"][0]["snippet"]) {
-				if (fs.existsSync("./requests/" + bodyJson["items"][0]["id"] + ".json")) {
+			if (bodyJson.items && bodyJson.items[0] && bodyJson.items[0].snippet) {
+				if (fs.existsSync("./requests/" + bodyJson.items[0].id + ".json")) {
 					errorMSG = "Video already requested";
 					respond();
-				}else{
-					fs.writeFileSync("./requests/" + bodyJson["items"][0]["id"] + ".json", JSON.stringify(bodyJson["items"][0], null, "\t"));
+				} else {
+					fs.writeFileSync("./requests/" + bodyJson.items[0].id + ".json", JSON.stringify(bodyJson.items[0], null, "\t"));
 
-					resultsJson = bodyJson["items"][0]["snippet"]
+					resultsJson = bodyJson.items[0].snippet;
 					respond();
-				}				
-			}else{
+				}
+			} else {
 				errorMSG = "Invalid video id";
 				respond();
 			}
@@ -197,7 +222,7 @@ app.post('/ajax/addToQueue', function(req, res){
 	}
 });
 
-app.get('/ajax/getQueue', function(req, res){
+app.get('/ajax/getQueue', function(req, res) {
 	res.send(getQueue())
 });
 
@@ -215,10 +240,10 @@ log("Running webserver on *:" + config.port);
 app.listen(config.port);
 
 //Error handling
-app.use(function (req, res) {
+app.use(function(req, res) {
 	errors.throw(404, req, res, "", log);
 });
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
 	var errorNo = (err.status || 500);
 	errors.throw(errorNo, req, res, err.message, log);
 });

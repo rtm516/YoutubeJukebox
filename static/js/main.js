@@ -28,10 +28,10 @@ function addToQueue(videoId) {
         encode: true,
 		success: function(result){
 			console.log(result);
-			if (result["error"] != "") {
-				alert("Error: " + result["error"]);
+			if (result.error !== "") {
+				alert("Error: " + result.error);
 			}else{
-				alert("Added " + result["video"]["title"] + " to the video queue.");
+				alert("Added " + result.video.title + " to the video queue.");
 			}
 		},
 		error: function(xhr, status, error){
@@ -55,14 +55,14 @@ function submitSearch() {
 		dataType: 'json',
         encode: true,
 		success: function(result){
-			if (result["error"] != "") {
-				$("#searchResults").html('<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;<span class="sr-only">Error:</span>' + result["error"] + '</div>');
+			if (result.error !== "") {
+				$("#searchResults").html('<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;<span class="sr-only">Error:</span>' + result.error + '</div>');
 			}else{
 				var resultsHTML = "";
-				for (var i = result["results"].length - 1; i >= 0; i--) {
-					var res = result["results"][i]
-					resultsHTML += '<div class="well well-sm" id="searchResult"><a class="pull-right btn btn-success" onclick="addToQueue(\'' + res["id"]["videoId"] + '\')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a><img src="' + res["snippet"]["thumbnails"]["default"]["url"] + '" /><a href="https://youtu.be/' + res["id"]["videoId"] + '" target="_blank"><h4>' + res["snippet"]["title"] + '</h4></a><h5>' + res["snippet"]["channelTitle"] + '</h5></div>';
-				};
+				for (var i = result.results.length - 1; i >= 0; i--) {
+					var res = result.results[i]
+					resultsHTML += '<div class="well well-sm" id="searchResult"><a class="pull-right btn btn-success" onclick="addToQueue(\'' + res.id.videoId + '\')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a><img src="' + res.snippet.thumbnails.default.url + '" /><a href="https://youtu.be/' + res.id.videoId + '" target="_blank"><h4>' + res.snippet.title + '</h4></a><h5>' + res.snippet.channelTitle + '</h5></div>';
+				}
 
 				$("#searchResults").html(resultsHTML);
 			}
@@ -81,3 +81,49 @@ $(function() {
 		submitSearch();
 	});
 });
+
+function updateQueue() {
+	$.ajax({
+		url: "/ajax/getQueue",
+		type: "GET",
+		dataType: 'json',
+		success: function(result){
+			var songs = result
+			var content = "";
+			
+			if ((typeof songs == 'undefined') || (songs.length === 0) || (songs.length === 0) || (songs == {})) {
+				content = content + "<b>No songs in queue</b>";
+			} else {
+				for(var key in songs) {
+					var song = songs[key];
+					content = content + "<div class='well well-sm'>" + song.snippet.title + "</div>"
+				}
+			}
+			$("#errorText").html("");
+			$("#queueList").html(content);
+		},
+		error: function(xhr, status, error){
+			$("#errorText").html("<b>Unable to contact backend server (" + xhr.status + ")</b>");
+		}
+	});
+}
+
+function removeQueue() {
+	var formData = {
+		videoID: ""
+	}
+	
+	$.ajax({
+		url: "/ajax/removeQueue",
+		type: "POST",
+		data: formData,
+		dataType: 'json',
+        encode: true,
+		success: function(result){
+			//nope
+		},
+		error: function(xhr, status, error){
+			$("#errorText").html("<b>Unable to contact backend server (" + xhr.status + ")</b>");
+		}
+	});
+}

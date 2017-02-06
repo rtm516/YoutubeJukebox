@@ -3,32 +3,53 @@
 	html, body {
 		height: 100%;
 		margin: 0 !important;
+		overflow-y: hidden;
 	}
 </style>
 <div class="container-fluid fillHeight">
 	<div class="row fillHeight">
 		<div class="col-xs-8 fillHeight">
-			<iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1" frameborder="0"></iframe>
+			<!--<iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1" frameborder="0"></iframe>-->
+			<div id="ytplayer"></div>
+
 			<script>
-				function resizePlayer() {
-					$("#ytplayer").height($(window).height()-3);
+			  var tag = document.createElement('script');
+			  tag.src = "https://www.youtube.com/iframe_api";
+			  var firstScriptTag = document.getElementsByTagName('script')[0];
+			  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+			  var player;
+			  function onYouTubeIframeAPIReady() {
+				player = new YT.Player('ytplayer', {
+				  videoId: 'JGwWNGJdvx8',
+				  events: {
+					'onReady': onPlayerReady,
+					'onStateChange': onPlayerStateChange
+				  }
+				});
+			  }
+
+			  function onPlayerReady(event) {
+				event.target.playVideo();
+			  }
+
+			  var done = false;
+			  function onPlayerStateChange(event) {
+				if (event.data == YT.PlayerState.STOPPED) {
+				  console.log("STOPPED");
 				}
-				
-				$(window).resize(function() {resizePlayer();});
-				
-				$(function() {resizePlayer()});
+			  }
 			</script>
 		</div>
 		<div class="col-xs-4 right">
 			<span id="queueTitle">Queued songs:</span>
+			<span id="errorText"></span>
 			<div class="vScroll" id="queueList">
 				<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
 					<b>No songs in queue</b>
 				<% } else { %>
-				<% console.log(songs); %>
 					<% for(var key in songs) { %>
 						<% var song = songs[key]; %>
-						<% console.log(""); %>
 						<div class="well well-sm">
 							<%- song.snippet.title; %>
 						</div>
@@ -38,6 +59,7 @@
 			<script>
 				$(function() {
 					resizeElement("#queueList", "#queueTitle", 4);
+					setInterval(updateQueue, 1000);
 				});
 			</script>
 		</div>
