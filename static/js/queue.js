@@ -25,7 +25,7 @@ function updateQueue() {
 			var content = "";
 			videoQueue = result;
 			
-			if ((typeof songs == 'undefined') || (songs.length === 0) || (songs.length === 0) || (songs == {})) {
+			if (typeof songs == "undefined" || !songs || typeof songs.length == "undefined" || songs.length === 0) {
 				content = content + "<b>No songs in queue</b>";
 			} else {
 				for(var key in songs) {

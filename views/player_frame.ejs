@@ -49,7 +49,7 @@
 				}
 
 				function onPlayerReady(event) {
-					event.target.playVideo();
+					player.playVideo();
 				}
 
 				var done = false;
@@ -70,7 +70,7 @@
 			<span id="queueTitle">Queued songs:</span>
 			<span id="errorText"></span>
 			<div class="vScroll" id="queueList">
-				<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
+				<% if (typeof songs == "undefined" || !songs || typeof songs.length == "undefined" || songs.length === 0) { %>
 					<b>No songs in queue</b>
 				<% } else { %>
 					<% for(var key in songs) { %>

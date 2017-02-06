@@ -8,7 +8,7 @@
 <div class="container">
 	<span id="queueTitle">Queued songs:</span>
 	<div class="vScroll" id="queueList">
-		<% if ((typeof songs == 'undefined') || (songs.length == 0) || (songs.length <= 0) || (songs == {})) { %>
+		<% if (typeof songs == "undefined" || !songs || typeof songs.length == "undefined" || songs.length === 0) { %>
 			<b>No songs in queue</b>
 		<% } else { %>
 		<% console.log(songs); %>
