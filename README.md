@@ -1,5 +1,5 @@
 # Youtube jukebox
-[![Known Vulnerabilities](https://snyk.io/test/github/rtm516/youtubejukebox/badge.svg)](https://snyk.io/test/github/rtm516/youtubejukebox)
+[![Known Vulnerabilities](https://snyk.io/test/github/rtm516/youtubejukebox/badge.svg)](https://snyk.io/test/github/rtm516/youtubejukebox)  
 This project provides a simple way of implementing a jukebox running from nodejs and youtube.
 __Warning: Unfinished__
 
