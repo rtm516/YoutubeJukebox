@@ -4,6 +4,7 @@ var fs = require('fs');
 var errors = require("./errors.js");
 var bodyParser = require('body-parser');
 var request = require('request');
+var htmlEncode = require('htmlencode').htmlEncode;
 
 var config = {};
 
@@ -58,6 +59,16 @@ if (!("youtubeAPIKey" in config)) {
 	hasMissing = true;
 	config.youtubeAPIKey = "youtube api key here";
 }
+if (!("defaultPlaylist" in config)) {
+	log("Default playlist missing from config (can be set to nothing)");
+	hasMissing = true;
+	config.defaultPlaylist = "PLx0sYbCqOb8Q_CLZC2BdBSKEEB59BOPUM";
+}
+if (!("defaultRandomOrder" in config)) {
+	log("Default playlist random order setting missing from config");
+	hasMissing = true;
+	config.defaultRandomOrder = true;
+}
 
 function saveConfig() {
 	log("Saving config");
@@ -87,9 +98,88 @@ function getQueue() {
 	return queue;
 }
 
+function isEmpty(obj) { // from https://coderwall.com/p/_g3x9q/how-to-check-if-javascript-object-is-empty
+	for(var key in obj) {
+		if(obj.hasOwnProperty(key))
+			return false;
+	}
+	return true;
+}
+
+
+// from http://blog.corrlabs.com/2011/02/shuffling-object-properties-in.html  START//
+Array.prototype.shuffle = function(){
+	for (var i = 0; i < this.length; i++){
+		var a = this[i];
+		var b = Math.floor(Math.random() * this.length);
+		this[i] = this[b];
+		this[b] = a;
+	}
+}
+
+function shuffleProperties(obj) {
+	var new_obj = {};
+	var keys = getKeys(obj);
+	keys.shuffle();
+	for (var key in keys){
+		if (key == "shuffle") continue; // skip our prototype method
+		new_obj[keys[key]] = obj[keys[key]];
+	}
+	return new_obj;
+}
+
+function getKeys(obj){
+	var arr = new Array();
+	for (var key in obj)
+		arr.push(key);
+	return arr;
+}
+// from http://blog.corrlabs.com/2011/02/shuffling-object-properties-in.html  END//
+
+function moveToBottom(object, key) {
+	var newObject = {};
+	for (var i = 0; i < Object.keys(object).length; i++){
+		var forKey = Object.keys(object)[i]
+		if (forKey != key) {
+			newObject[forKey] = object[forKey];
+		}
+	}
+	newObject[key] = object[key];
+	return newObject;
+}
+
+var playlist = {}
+function generatePlaylist(callback) {
+	request('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&key=' + config.youtubeAPIKey + '&playlistId=' + config.defaultPlaylist, function(error, response, body) {
+		if (response.statusCode == 503) {
+			callback({});
+		}
+
+		var bodyJson = JSON.parse(body);
+
+		if (bodyJson.items) {
+			var items = {};
+
+			bodyJson.items.forEach(item => {
+				items[item.snippet.resourceId.videoId] = item;
+			});
+
+			//Shuffle array if specified in config
+			if (config.defaultRandomOrder) {
+				items = shuffleProperties(items);
+			}
+
+			playlist = items;
+			callback(items);
+		} else {
+			callback({});
+		}
+	});
+}
+
 var app = express();
 
-//Security stuff
+//Use helmet for security
 app.use(helmet());
 
 //Allow for post requests
@@ -158,7 +248,7 @@ app.post('/ajax/search', function(req, res) {
 		errorMSG = "Invalid sort order";
 		respond();
 	} else {
-		request('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDimension=2d&maxResults=25&order=' + sort + '&key=' + config.youtubeAPIKey + '&q=' + searchTerm, function(error, response, body) {
+		request('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDimension=2d&videoEmbeddable=true&maxResults=25&order=' + sort + '&key=' + config.youtubeAPIKey + '&q=' + htmlEncode(searchTerm), function(error, response, body) {
 			if (response.statusCode == 503) {
 				errorMSG = "Youtube API down";
 				respond();
@@ -168,6 +258,7 @@ app.post('/ajax/search', function(req, res) {
 
 			if (bodyJson.items) {
 				resultsJson = bodyJson.items;
+				resultsJson.reverse();
 				respond();
 			} else {
 				errorMSG = "No search results";
@@ -224,39 +315,58 @@ app.post('/ajax/addToQueue', function(req, res) {
 });
 
 app.get('/ajax/getQueue', function(req, res) {
-	res.send(getQueue())
+	var queue = getQueue();
+
+	function respond(json) {
+		res.send(json);
+	}
+
+	if (typeof queue == "undefined" || !queue || isEmpty(queue)) {
+		if (config.defaultPlaylist != "") {
+			if (typeof playlist == "undefined" || !playlist || isEmpty(playlist)) {
+				generatePlaylist(respond);
+			}else{
+				res.send(playlist);
+			}
+		}else{
+			res.send({});
+		}
+	}else{
+		playlist = {};
+		res.send(queue);
+	}
 });
 
 app.post('/ajax/removeQueue', function(req, res) {
 	var videoID = req.body.videoID;
-	var queue = getQueue();
-	if (queue[videoID]) {
-		if (fs.existsSync("./requests/" + videoID + ".json")) {
-			try {
-				fs.unlinkSync("./requests/" + videoID + ".json");
-				log("Removed video " + videoID + " from the queue");
-				res.send({success:1, error:""});
-			}
-			catch (e) {
-				res.send({success:0, error:"Video in queue but file doesnt exist"});
+	var type = req.body.type;
+
+	if (type != "youtube#playlistItem") {
+		var queue = getQueue();
+		if (queue[videoID]) {
+			if (fs.existsSync("./requests/" + videoID + ".json")) {
+				try {
+					fs.unlinkSync("./requests/" + videoID + ".json");
+					log("Removed video " + videoID + " from the queue");
+					res.send({success:1, error:""});
+				}
+				catch (e) {
+					res.send({success:0, error:"Video in queue but file doesnt exist (probably from default playlist)"});
+				}
+			}else{
+				res.send({success:0, error:"Video in queue but file doesnt exist (probably from default playlist)"});
 			}
 		}else{
-			res.send({success:0, error:"Video in queue but file doesnt exist"});
+			res.send({success:0, error:"That video isnt in the queue"});
 		}
 	}else{
-		res.send({success:0, error:"That video isnt in the queue"});
+		playlist = moveToBottom(playlist, videoID);
+		res.send({success:1, error:""});
 	}
 });
 
-
-
-
-
 //Allows for a static folder
 app.use(express.static('static'));
-
-//Use helmet for security
-app.use(helmet());
 
 //Start the server
 log("Running webserver on *:" + config.port);

@@ -52,16 +52,25 @@
 					player.playVideo();
 				}
 
-				var done = false;
+				var lastVid = "";
 				function onPlayerStateChange(event) {
 					if (event.data == YT.PlayerState.ENDED) {
 						var queue = getQueue();
-						removeQueue(Object.keys(queue)[0]);
+						var key = Object.keys(queue)[0];
 						var nextSong = 1;
 						if (queue.length <= 1) {
 							nextSong = 0;
 						}
+
+						if (key != lastVid) {
+							nextSong = 0;
+						}else{
+							removeQueue(key, queue[key].kind);
+						}
+
 						player.loadPlaylist(getStrQueue(), nextSong);
+					}else if(event.data == YT.PlayerState.PLAYING) {
+						lastVid = player.getVideoData().video_id;
 					}
 				}
 			</script>

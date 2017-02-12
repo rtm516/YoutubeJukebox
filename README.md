@@ -15,6 +15,7 @@ __Warning: Unfinished__
 * [body-parser](https://github.com/expressjs/body-parser)
 * [Request](https://github.com/request/request)
 * [Helmet](https://github.com/helmetjs/helmet)
+* [htmlencode](https://www.npmjs.com/package/htmlencode)
 * [nodemon](https://github.com/remy/nodemon) (Optional)
 
 ## Setup

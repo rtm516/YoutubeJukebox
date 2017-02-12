@@ -15,6 +15,24 @@ function getStrQueue() {
 	return strQueue;
 }
 
+function checkPlaylistUpdate() {
+	if (!player) {
+		return
+	}
+	
+	if ((player.getPlayerState() == YT.PlayerState.ENDED) || (player.getPlayerState() == YT.PlayerState.UNSTARTED)) {
+		player.loadPlaylist(getStrQueue());
+	}
+}
+
+function isEmpty(obj) {
+	for(var key in obj) {
+		if(obj.hasOwnProperty(key))
+			return false;
+	}
+	return true;
+}
+
 function updateQueue() {
 	$.ajax({
 		url: "/ajax/getQueue",
@@ -25,7 +43,7 @@ function updateQueue() {
 			var content = "";
 			videoQueue = result;
 			
-			if (typeof songs == "undefined" || !songs || typeof songs.length == "undefined" || songs.length === 0) {
+			if (typeof songs == "undefined" || !songs || isEmpty(songs)) {
 				content = content + "<b>No songs in queue</b>";
 			} else {
 				for(var key in songs) {
@@ -35,6 +53,7 @@ function updateQueue() {
 			}
 			$("#errorText").html("");
 			$("#queueList").html(content);
+			checkPlaylistUpdate();
 		},
 		error: function(xhr, status, error){
 			$("#errorText").html("<b>Unable to contact backend server (" + xhr.status + ")</b>");
@@ -42,13 +61,13 @@ function updateQueue() {
 	});
 }
 
-function removeQueue(videoID) {
+function removeQueue(videoID, type) {
 	$.ajax({
 		url: "/ajax/removeQueue",
 		type: "POST",
-		data: {videoID: videoID},
+		data: {videoID: videoID, type: type},
 		dataType: 'json',
-        encode: true,
+		encode: true,
 		success: function(result){
 			updateQueue();
 			$("#errorText").html("");

@@ -9,11 +9,12 @@
   "author": "rtm516",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.14.1",
-    "ejs": "^2.5.5",
     "body-parser": "^1.16.0",
-    "request": "^2.79.0",
-    "helmet": "^3.4.0"
+    "ejs": "^2.5.5",
+    "express": "^4.14.1",
+    "helmet": "^3.4.0",
+    "htmlencode": "0.0.4",
+    "request": "^2.79.0"
   },
   "devDependencies": {},
   "repository": {
