@@ -37,9 +37,7 @@
 					player = new YT.Player('ytplayer', {
 						playerVars: {
 							rel: 0,
-							playlist: "<%- strQueue %>",
-							autoplay: 1,
-							controls: 1
+							controls: <%- controls %>
 						},
 						events: {
 							'onReady': onPlayerReady,

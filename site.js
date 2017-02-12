@@ -69,6 +69,11 @@ if (!("defaultRandomOrder" in config)) {
 	hasMissing = true;
 	config.defaultRandomOrder = true;
 }
+if (!("playerControls" in config)) {
+	log("Player controls setting missing from config");
+	hasMissing = true;
+	config.playerControls = false;
+}
 
 function saveConfig() {
 	log("Saving config");
@@ -222,7 +227,8 @@ app.get('/player', function(req, res){
 app.get('/player_frame', function(req, res) {
 	res.render('player_frame', {
 		page: "player",
-		songs: getQueue()
+		songs: getQueue(),
+		controls: config.playerControls ? 1 : 0
 	});
 });
 
