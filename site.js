@@ -74,6 +74,16 @@ if (!("playerControls" in config)) {
 	hasMissing = true;
 	config.playerControls = false;
 }
+if (!("playerLockedHosts" in config)) {
+	log("Player use restricted hosts setting missing from config");
+	hasMissing = true;
+	config.playerLockedHosts = true;
+}
+if (!("playerLockedHostsList" in config)) {
+	log("Player use restricted hosts list missing from config");
+	hasMissing = true;
+	config.playerLockedHostsList = ["localhost", "127.0.0.1"];
+}
 
 function saveConfig() {
 	log("Saving config");
@@ -225,11 +235,24 @@ app.get('/player', function(req, res){
 */
 
 app.get('/player_frame', function(req, res) {
-	res.render('player_frame', {
-		page: "player",
-		songs: getQueue(),
-		controls: config.playerControls ? 1 : 0
-	});
+	function sendPage() {
+		res.render('player_frame', {
+			page: "player",
+			songs: getQueue(),
+			controls: config.playerControls ? 1 : 0
+		});
+	}
+	
+	if (config.playerLockedHosts) {
+		var host = req.get("host").replace(":" + config.port, "");
+		if (config.playerLockedHostsList.indexOf(host) != -1) {
+			sendPage();
+		}else{
+			errors.throw(403, req, res, "", log);
+		}
+	}else{
+		sendPage();
+	}
 });
 
 app.post('/ajax/search', function(req, res) {
