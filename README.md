@@ -27,6 +27,38 @@ or
 `npm install -g nodemon`
 to install it globally
 
+## Config
+* `port`
+  * The port to run the webserver on
+  * Type: `integer`
+  * Default: `3000`
+* `youtubeAPIKey`
+  * Your API key for the youtube API.
+  * Can be obtained from [here](https://console.developers.google.com/apis/credentials) and [this](https://console.developers.google.com/apis/api/youtube) API needs to be enabled.
+  * Type: `string`
+  * Default: `'youtube api key here'`
+* `defaultPlaylist`
+  * The default playlist to play if there is no songs queued. If it is set to `''` then it will be disabled.
+  * Type: `string`
+  * Default: `'PLx0sYbCqOb8Q_CLZC2BdBSKEEB59BOPUM'` ([UK Top 40 Songs](https://www.youtube.com/playlist?list=PLx0sYbCqOb8Q_CLZC2BdBSKEEB59BOPUM))
+* `defaultRandomOrder`
+  * True if you want the default playlists songs to be played in a random order.
+  * Type: `boolean`
+  * Default: `true`
+* `playerControls`
+  * Should the youtube player controls be shown.
+  * Type: `boolean`
+  * Default: `false`
+* `playerLockedHosts`
+  * Should the player page be restricted to certain connection domains.
+  * EG: jukebox.yoursite.com would be denied but if navigated to localhost then it would be accepted.
+  * Type: `boolean`
+  * Default: `true`
+* `playerLockedHostsList`
+  * Domain list for above setting.
+  * Type: `string array`
+  * Default: `["localhost", "127.0.0.1"]`
+
 ## Links
 * [My website](https://rtm516.co.uk/)
 * [Node.js](https://nodejs.org/en/)
