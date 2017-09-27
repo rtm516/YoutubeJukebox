@@ -4,7 +4,9 @@
   "description": "Provides a simple way of implementing a jukebox running from nodejs and youtube",
   "main": "site.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "rtm516",
   "license": "MIT",
@@ -14,7 +16,8 @@
     "express": "^4.14.1",
     "helmet": "^3.4.0",
     "htmlencode": "0.0.4",
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "snyk": "^1.41.1"
   },
   "devDependencies": {},
   "repository": {
@@ -24,5 +27,6 @@
   "bugs": {
     "url": "https://github.com/rtm516/YoutubeJukebox/issues"
   },
-  "homepage": "https://github.com/rtm516/YoutubeJukebox#readme"
+  "homepage": "https://github.com/rtm516/YoutubeJukebox#readme",
+  "snyk": true
 }
